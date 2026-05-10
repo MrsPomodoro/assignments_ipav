@@ -5,21 +5,24 @@
 # - sorting slices
 # - creating 3D numpy volume
 
-
 import numpy as np
 import pydicom
 import matplotlib.pyplot as plt
 import glob
 
-# load the DICOM files into list datasets
 filepath = '../data/Lobus_DICOMs_mixed_up/*.dcm'
-filenames = glob.glob(filepath, recursive=False)
-datasets = []
-for fname in filenames:
-    print("loading: {}".format(fname))
-    datasets.append(pydicom.dcmread(fname))
-print(len(datasets), ' slices loaded...')
 
+# load the DICOM files into list datasets - create helper method
+def load_dicom_files(filepath):
+    filenames = glob.glob(filepath, recursive=False)
+    datasets = []
+    for fname in filenames:
+        print("loading: {}".format(fname))
+        datasets.append(pydicom.dcmread(fname))
+    print(len(datasets), ' slices loaded...')
+    return datasets
+
+datasets = load_dicom_files(filepath)
 
 # TODO: prepare a 3D numpy array as array of zeros to store the volume intensities,
 #  use the same datatype as it is used in the input dicom files, volume dimensions
@@ -96,8 +99,6 @@ def sort_and_fill_volume(datasets, volume3D):
         # get slice index from DICOM metadata
         slice_index = int(dataset[0x0020, 0x0013].value)
 
-        print("Current slice index:", slice_index)
-
         # copy pixel data into correct position in 3D volume
         ## sorting is performed by storing every DICOM slice into the correct z-position in the 3D volume using the Instance Number metadata
         # copy pixel data into correct position in 3D volume
@@ -107,6 +108,4 @@ def sort_and_fill_volume(datasets, volume3D):
 
 volume3D = sort_and_fill_volume(datasets, volume3D)
 
-print("Volume min intensity:", volume3D.min())
-print("Volume max intensity:", volume3D.max())
-print(volume3D[:, :, 0])
+print("Volume min intensity:", volume3D.min(),"Volume max intensity:", volume3D.max())
