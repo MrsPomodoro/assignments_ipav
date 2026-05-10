@@ -7,16 +7,15 @@ from load_dicom_volume import (
     sort_and_fill_volume
 )
 from visualisation import (
-    show_54th_slice)
+    show_54th_slice,
+    show_slice_slider
+)
 
-
-# path to DICOM files
+# 1. load datasets
 filepath = '../data/Lobus_DICOMs_mixed_up/*.dcm'
-
-# load datasets
 datasets = load_dicom_files(filepath)
 
-# get information from first slice
+# 2. get information from first slice -> rows, columns, number_of_slices and datatype
 first_slice = datasets[0].pixel_array
 
 rows = first_slice.shape[0]
@@ -24,7 +23,7 @@ columns = first_slice.shape[1]
 number_of_slices = len(datasets)
 datatype = first_slice.dtype
 
-# create empty 3D volume
+# 3. create empty 3D volume
 volume3D = prepare_empty_volume(
     rows,
     columns,
@@ -32,9 +31,11 @@ volume3D = prepare_empty_volume(
     datatype
 )
 
-# sort slices and fill volume
+#4.  sort slices and fill new 3d volume
 volume3D = sort_and_fill_volume(datasets, volume3D)
 
-
-#visualize the 54th slice image after sorting
+#5. visualize the 54th slice image after sorting
 show_54th_slice(volume3D)
+
+#6. visualize slices with slider
+show_slice_slider(volume3D)
