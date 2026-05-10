@@ -6,6 +6,9 @@ from load_dicom_volume import (
     prepare_empty_volume,
     sort_and_fill_volume
 )
+from visualisation import (
+    show_54th_slice)
+
 
 # path to DICOM files
 filepath = '../data/Lobus_DICOMs_mixed_up/*.dcm'
@@ -31,3 +34,7 @@ volume3D = prepare_empty_volume(
 
 # sort slices and fill volume
 volume3D = sort_and_fill_volume(datasets, volume3D)
+
+
+#visualize the 54th slice image after sorting
+show_54th_slice(volume3D)
