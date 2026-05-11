@@ -100,10 +100,10 @@ def show_windowing(volume3D):
     mapped_image = itf[current_slice]              # map original slice intensities with ITF
     figure, ax_image = plt.subplots()              # create matplotlib figure
 
-    plt.subplots_adjust(bottom=0.25)                          # create free space for sliders
+    plt.subplots_adjust(bottom=0.35)                          # create free space for sliders
     ax_center_slider = plt.axes([0.2, 0.15, 0.6, 0.03])       # create axes for sliders
     ax_width_slider = plt.axes([0.2, 0.08, 0.6, 0.03])
-
+    ax_slice_slider = plt.axes([0.2, 0.01, 0.6, 0.03])
 
     center_slider = Slider(                                  # create center slider
         ax=ax_center_slider,
@@ -125,6 +125,14 @@ def show_windowing(volume3D):
         valstep=1
     )
 
+    slice_slider = Slider(
+        ax=ax_slice_slider,
+        label="Slice",
+        valmin=0,
+        valmax=volume3D.shape[2] - 1,
+        valinit=0,
+        valstep=1
+    )
     # display mapped image
     image_plot = ax_image.imshow( mapped_image.astype(np.uint8),  cmap="gray" )
 
@@ -143,7 +151,8 @@ def show_windowing(volume3D):
     def update_windowing(selected_value):
         current_center = int(center_slider.val)                     # get actual slider values
         current_width = int(width_slider.val)
-        current_slice = volume3D[:, :, slice_index]                 # get current slice
+        current_slice_index = int(slice_slider.val)
+        current_slice = volume3D[:, :, current_slice_index]               # get current slice
         updated_itf = windowing_itf(                                # create updated ITF
             range(0, max_intensity + 1),
             current_center,
@@ -169,7 +178,7 @@ def show_windowing(volume3D):
 
     center_slider.on_changed(update_windowing)                     # connect sliders with callback function
     width_slider.on_changed(update_windowing)
-
+    slice_slider.on_changed(update_windowing)
 
 
     #### roi_selection #####
