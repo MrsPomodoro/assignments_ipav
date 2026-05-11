@@ -6,10 +6,12 @@
 # - center slider
 # - width slider
 # - updating image after changing windowing parameters
+# - RectangleSelector ROI selection
+# - ROI based ITF update
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider
+from matplotlib.widgets import Slider, RectangleSelector
 
 
 # TODO: after the slider for selecting the active image slice is working, try to implement a windowing ITF specified by the windowing parameters center and width:
@@ -108,7 +110,8 @@ def show_windowing(volume3D):
         label="Center",
         valmin=0,
         valmax=max_intensity,
-        valinit=center
+        valinit=center,
+        valstep=1
     )
 
     # create width slider - assignment says width must be between 10 and 85
@@ -118,7 +121,8 @@ def show_windowing(volume3D):
         label="Width",
         valmin=10,
         valmax=85,
-        valinit=width
+        valinit=width,
+        valstep=1
     )
 
     # display mapped image
@@ -149,15 +153,107 @@ def show_windowing(volume3D):
         updated_image = updated_itf[current_slice]                  # map slice intensities with updated ITF
         image_plot.set_data(updated_image.astype(np.uint8))         # update image visualization
 
+
+        # TODO:
+        # - If you strive for full assignment points make sure the slice order in the volume is correct
+        # and changing the ROI or a slider behaves correctly and updates the visualization correctly:
+        # ensure that whenever a slider is changed the title of the figure is updated with information
+        # which slider was updated – it is important that it is stated which slider caused the update
+
         ax_image.set_title(                                         # update figure title
             f"Center slider updated | Center: "
             f"{current_center} Width: {current_width}"
         )
 
-
         figure.canvas.draw_idle()                                   # redraw figure
 
     center_slider.on_changed(update_windowing)                     # connect sliders with callback function
     width_slider.on_changed(update_windowing)
+
+
+
+    #### roi_selection #####
+
+    # TODO: also implement an interactive rectangular region of interest (ROI) selection
+    # (search docs for RectangleSelector)
+    # to allow the user to select a ROI, determine the min and max intensity value
+    # inside the ROI for the currently selected slice and derive the ITF parameters
+    # (center and width) from it.
+
+
+    # based on older matplotlib RectangleSelector example documentation:
+    # https://matplotlib.org/3.1.3/gallery/widgets/rectangle_selector.html
+    #
+    # based on the example:
+    # - use RectangleSelector callback function
+    # - use mouse click start and end coordinates
+    # - use RectangleSelector on image axis
+
+    def select_roi(eclick, erelease):
+
+        # based on older matplotlib RectangleSelector example documentation:
+        # use mouse click start and end coordinates
+
+        x1 = int(eclick.xdata)
+        y1 = int(eclick.ydata)
+
+        x2 = int(erelease.xdata)
+        y2 = int(erelease.ydata)
+
+
+        # get current slice from 3D volume
+        current_slice = volume3D[:, :, slice_index]
+
+
+        # based on exercise02 linear indexing:
+        # use numpy image indexing to extract ROI from current slice
+
+        roi = current_slice[y1:y2, x1:x2]
+
+
+        # based on exercise07 histogram equalization:
+        # use min() and max() intensity calculation on image region
+
+        roi_min = roi.min()
+        roi_max = roi.max()
+
+        print("ROI min intensity:", roi_min)
+        print("ROI max intensity:", roi_max)
+
+
+        # derive ITF parameters from ROI
+        roi_center = (roi_min + roi_max) // 2
+        roi_width = roi_max - roi_min
+
+
+        # TODO 2 detailed:
+        # changing the slider for the selected slice should update the visualized slice
+        # taking into account the currently selected windowing ITF
+        #
+        # - changing one of the sliders for the windowing ITF parameters
+        # should update the visualization
+        # (by mapping the original slice with the current specified ITF)
+        #
+        # - selecting a ROI should update the slider values
+        # and also update the visualization accordingly
+        #
+        # based on matplotlib Slider.set_val():
+        # changing slider values automatically triggers update_windowing()
+
+        center_slider.set_val(roi_center)
+        width_slider.set_val(roi_width)
+
+
+    # based on older matplotlib RectangleSelector example documentation:
+    # https://matplotlib.org/3.1.3/gallery/widgets/rectangle_selector.html
+    #
+    # activate interactive ROI selection on image axis
+
+    rectangle_selector = RectangleSelector(
+        ax_image,
+        select_roi,
+        useblit=True,
+        interactive=True
+    )
 
     plt.show()
