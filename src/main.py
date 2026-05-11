@@ -10,6 +10,7 @@ from visualisation import (
     show_54th_slice,
     show_slice_slider
 )
+from windowing import show_windowing
 
 # 1. load datasets
 filepath = '../data/Lobus_DICOMs_mixed_up/*.dcm'
@@ -39,3 +40,6 @@ show_54th_slice(volume3D)
 
 #6. visualize slices with slider
 show_slice_slider(volume3D)
+
+#7. show windowing
+show_windowing(volume3D)
