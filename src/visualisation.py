@@ -13,9 +13,9 @@ from matplotlib.widgets import Slider
 #TODO 1: visualize the 54th slice image after sorting from the volume numpy array
 # in a figure with matplotlib
 
-def show_54th_slice(volume3D):   # I used the function as we did in exercise04 and 05
+def show_54th_slice(volume3D, slice_index):   # I used the function as we did in exercise04 and 05
     plt.figure()
-    plt.imshow(volume3D[:, :, 53], cmap="gray")
+    plt.imshow(volume3D[:, :, slice_index], cmap="gray")
     plt.title("54th sorted slice")
     plt.show()
 
@@ -26,10 +26,9 @@ def show_54th_slice(volume3D):   # I used the function as we did in exercise04 a
 #  use separate axes inside the figure: use one axis for the slider, and one axis for plotting the image
 #  (read about axes in the documentation if you are unfamiliar with this concept)
 
-def show_slice_slider(volume3D):
+def show_slice_slider(volume3D, slice_index):
 
     number_of_slices = volume3D.shape[2]     # get the number of slices from the 3D volume - the third dimension represents the z-direction / slice direction
-    slice_index = 0    #  start visualization with the first slice
 
     # based on the matplotlib slider documentation example I created :
     #  - a figure and separate axis for the image visualization
@@ -39,7 +38,7 @@ def show_slice_slider(volume3D):
 
     figure, ax_image = plt.subplots()
     plt.subplots_adjust(bottom=0.25)
-    ax_slider = plt.axes([0.2, 0.1, 0.6, 0.03])
+    ax_slider = plt.axes((0.2, 0.1, 0.6, 0.03))
     slice_slider = Slider(
         ax=ax_slider,
         label="Slice",

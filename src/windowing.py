@@ -76,7 +76,7 @@ def windowing_itf(inputValueRange, center, width):
 
 def show_windowing(volume3D):
 
-    slice_index = 0
+    slice_index = 53    #  start visualization with the 54th slice
 
 # check mn, max to be able to setup windowing parameters
     print(volume3D.min())
@@ -101,9 +101,9 @@ def show_windowing(volume3D):
     figure, ax_image = plt.subplots()              # create matplotlib figure
 
     plt.subplots_adjust(bottom=0.35)                          # create free space for sliders
-    ax_center_slider = plt.axes([0.2, 0.15, 0.6, 0.03])       # create axes for sliders
-    ax_width_slider = plt.axes([0.2, 0.08, 0.6, 0.03])
-    ax_slice_slider = plt.axes([0.2, 0.01, 0.6, 0.03])
+    ax_center_slider = plt.axes((0.2, 0.15, 0.6, 0.03))       # create axes for sliders
+    ax_width_slider = plt.axes((0.2, 0.08, 0.6, 0.03))
+    ax_slice_slider = plt.axes((0.2, 0.01, 0.6, 0.03))
 
     center_slider = Slider(                                  # create center slider
         ax=ax_center_slider,
