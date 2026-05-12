@@ -7,7 +7,6 @@ from load_dicom_volume import (
     sort_and_fill_volume
 )
 from visualisation import (
-    show_54th_slice,
     show_slice_slider
 )
 from windowing import show_windowing
@@ -37,7 +36,6 @@ volume3D = sort_and_fill_volume(datasets, volume3D)
 
 #5. visualize the 54th slice image after sorting
 slice_index = 53
-show_54th_slice(volume3D, slice_index)
 
 #6. visualize slices with slider
 show_slice_slider(volume3D, slice_index)
