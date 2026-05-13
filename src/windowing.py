@@ -12,6 +12,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, RectangleSelector
+from visualisation import show_slice_slider
 
 
 # TODO: after the slider for selecting the active image slice is working, try to implement a windowing ITF specified by the windowing parameters center and width:
@@ -100,10 +101,18 @@ def show_windowing(volume3D):
     mapped_image = itf[current_slice]              # map original slice intensities with ITF
     figure, ax_image = plt.subplots()              # create matplotlib figure
 
-    plt.subplots_adjust(bottom=0.35)                          # create free space for sliders
-    ax_center_slider = plt.axes((0.2, 0.15, 0.6, 0.03))       # create axes for sliders
-    ax_width_slider = plt.axes((0.2, 0.08, 0.6, 0.03))
-    ax_slice_slider = plt.axes((0.2, 0.01, 0.6, 0.03))
+    image_plot, slice_slider = show_slice_slider(
+        volume3D,
+        slice_index,
+        figure,
+        ax_image
+    )
+
+    image_plot.set_data(mapped_image.astype(np.uint8))
+
+    plt.subplots_adjust(bottom=0.3)                          # create free space for sliders
+    ax_center_slider = plt.axes((0.2, 0.20, 0.6, 0.03))       # create axes for sliders
+    ax_width_slider = plt.axes((0.2, 0.12, 0.6, 0.03))
 
     center_slider = Slider(                                  # create center slider
         ax=ax_center_slider,
@@ -124,17 +133,6 @@ def show_windowing(volume3D):
         valinit=width,
         valstep=1
     )
-
-    slice_slider = Slider(
-        ax=ax_slice_slider,
-        label="Slice",
-        valmin=0,
-        valmax=volume3D.shape[2] - 1,
-        valinit=0,
-        valstep=1
-    )
-    # display mapped image
-    image_plot = ax_image.imshow( mapped_image.astype(np.uint8),  cmap="gray" )
 
     ax_image.set_title("Windowing ITF visualization")
 
@@ -169,9 +167,11 @@ def show_windowing(volume3D):
         # ensure that whenever a slider is changed the title of the figure is updated with information
         # which slider was updated – it is important that it is stated which slider caused the update
 
-        ax_image.set_title(                                         # update figure title
-            f"Center slider updated | Center: "
-            f"{current_center} Width: {current_width}"
+        ax_image.set_title(
+            f"Center slider updated | "
+            f"Slice: {current_slice_index} | "
+            f"Center: {current_center} | "
+            f"Width: {current_width}"
         )
 
         figure.canvas.draw_idle()                                   # redraw figure
@@ -211,7 +211,7 @@ def show_windowing(volume3D):
 
 
         # get current slice from 3D volume
-        current_slice = volume3D[:, :, slice_index]
+        current_slice = volume3D[:, :, int(slice_slider.val)]
 
 
         # based on exercise02 linear indexing:
