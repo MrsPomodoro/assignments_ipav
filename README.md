@@ -82,21 +82,7 @@ Sixth commit: Removed show_slice_slider() call and import from main.py since it 
 
 Seventh commit:  Fixed the filepath from '../data/...' to 'data/...' to match the correct relative path from the project root. Removed the standalone slice_index = 53 line since it is now set inside show_windowing(). Added print for volume min and max intensity.
 
-
-**Bug Fixing - what I wasn't able to fix by myself and what I tried**
-During development I encountered a bug with the windowing ITF not displaying correctly. The image was showing as a black square instead of the loaded slice. I used an AI assistant to help identify the issue because I wasn't able to figure it out by myself after several attempts. As an attachment you can see my conversation.
-
-The main problem was hardcoded center = 180 and width = 40, which I used because I followed the approach from the lecture example. However these values did not match the actual DICOM intensity distribution of the data. After implementing the recommended fix and calculating center and width dynamically from the actual intensity range of the volume, the image displayed correctly:
-
-center = (min_intensity + max_intensity) // 2
-width = max_intensity - min_intensity
-
-
-How the bug looked like:
-![alt text](bug_itf.png)
-
-
-**Final Fixes and Refactoring**
+**Final Tuning and Refactoring**
 
 After everything was working and refactored, I went through the assignment requirements one more time and made these final fixes:
 
@@ -111,3 +97,25 @@ After everything was working and refactored, I went through the assignment requi
 Final solution:
 ![](final_result1.png)
 ![](final_figure.png)
+
+
+**Bug Fixing - what I wasn't able to fix by myself and what I tried**
+
+During development I encountered a bug with the windowing ITF not displaying correctly. The image was showing as a black 
+square instead of the loaded slice. I used an AI assistant to help identify the issue because I wasn't able to figure it 
+out by myself after several attempts. As an attachment you can see my conversation.
+
+Before using the AI assistant I tried to fix the issue myself. First I added debug prints for volume3D.min() and volume3D.max() 
+to check the actual intensity range of the data. Second I tried manually adjusting the hardcoded centerand width values slightly 
+in the code to see if the image would change, but the effect was minimal and I did not yet understand that the hardcoded values
+themselves were the root cause of the problem. Neither attempt led me to the solution, so I decided to use an AI assistant to help identify the problem.
+The main problem was hardcoded center = 180 and width = 40, which I used because I followed the approach from the lecture example. 
+However these values did not match the actual DICOM intensity distribution of the data. After implementing the recommended fix
+and calculating center and width dynamically from the actual intensity range of the volume, the image displayed correctly:
+
+center = (min_intensity + max_intensity) // 2
+width = max_intensity - min_intensity
+
+
+How the bug looked like:
+![alt text](bug_itf.png)
