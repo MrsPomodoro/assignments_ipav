@@ -9,7 +9,8 @@ from load_dicom_volume import (
 from windowing import show_windowing
 
 # 1. load datasets
-filepath = '../data/Lobus_DICOMs_mixed_up/*.dcm'
+filepath = 'data/Lobus_DICOMs_mixed_up/*.dcm'
+
 datasets = load_dicom_files(filepath)
 
 # 2. get information from first slice -> rows, columns, number_of_slices and datatype
@@ -31,8 +32,7 @@ volume3D = prepare_empty_volume(
 #4.  sort slices and fill new 3d volume
 volume3D = sort_and_fill_volume(datasets, volume3D)
 
-#5. visualize the 54th slice image after sorting
-slice_index = 53
+print("Volume min intensity:", volume3D.min(),"Volume max intensity:", volume3D.max())
 
-#6. show windowing and slice visualization
+#5. show the 54th slice image after sorting and  windowing with sliders - they are calling inside in  windowing function
 show_windowing(volume3D)
