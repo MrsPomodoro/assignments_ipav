@@ -177,7 +177,9 @@ def show_windowing(volume3D):
 # - get actual slider values
 # - create updated ITF
 # - map image again
-# - update visualization
+# - update visualization and title
+
+    changed_slider = ["Slice"]   #variable for the slider to know, which was changed and show it in the title
 
     def update_windowing(selected_value):
 
@@ -205,7 +207,7 @@ def show_windowing(volume3D):
         # which slider caused the update
 
         ax_image.set_title(
-            f"Center slider updated | "
+            f"{changed_slider[0]} slider updated | "
             f"Slice: {current_slice_index} | "
             f"Center: {current_center} | "
             f"Width: {current_width}"
@@ -215,9 +217,21 @@ def show_windowing(volume3D):
 
     # connect sliders with callback function
 
-    center_slider.on_changed(update_windowing)
-    width_slider.on_changed(update_windowing)
-    slice_slider.on_changed(update_windowing)
+    def on_center(val):
+        changed_slider[0] = "Center"
+        update_windowing(val)
+
+    def on_width(val):
+        changed_slider[0] = "Width"
+        update_windowing(val)
+
+    def on_slice(val):
+        changed_slider[0] = "Slice"
+        update_windowing(val)
+
+    center_slider.on_changed(on_center)
+    width_slider.on_changed(on_width)
+    slice_slider.on_changed(on_slice)
 
 
     #### roi_selection #####
