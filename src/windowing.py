@@ -233,6 +233,10 @@ def show_windowing(volume3D):
     width_slider.on_changed(on_width)
     slice_slider.on_changed(on_slice)
 
+    center_slider.on_changed(on_center)
+    width_slider.on_changed(on_width)
+    slice_slider.on_changed(on_slice)
+
 
     #### roi_selection #####
 
@@ -280,8 +284,8 @@ def show_windowing(volume3D):
 
         # derive ITF parameters
 
-        roi_center = (roi_min + roi_max) // 2
-        roi_width = roi_max - roi_min
+        roi_center = (int(roi_min) + int(roi_max)) // 2
+        roi_width = int(roi_max) - int(roi_min)
 
         # TODO:
         # changing slider values automatically
