@@ -12,7 +12,7 @@ I divided the assignment into 3 main blocks and created a separate module for ea
 Each file contains the TODO section from the assignment that it covers, so it is clear which part of the assignment is solved where.
 
 The project has a src/ folder for all Python files and a data/ folder for the DICOM files.
-
+![](project_structure.png)
 
 **Development Process**
 
@@ -109,4 +109,5 @@ After everything was working and refactored, I went through the assignment requi
 
 
 Final solution:
-![alt text](final_figure.png)
+![](final_result1.png)
+![](final_figure.png)
