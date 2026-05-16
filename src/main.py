@@ -1,3 +1,11 @@
+#################################
+# TODO ASSIGNMENT:
+# - the task – create 3D numpy array (volume) from list of mixed-up individual loaded DICOM slice images and implement a matplotlib visualization 
+#   which allows to select the visualized slice from the volume via a slider, 
+# - also implement sliders for windowing ITF functionality (apply an intensity transfer function on the visualized slice) 
+# - and implement a ROI selection to derive the ITF parameters from it
+#################################
+
 # main.py
 # author: Barbara Klimek
 
@@ -34,5 +42,5 @@ volume3D = sort_and_fill_volume(datasets, volume3D)
 
 print("Volume min intensity:", volume3D.min(),"Volume max intensity:", volume3D.max())
 
-#5. show the 54th slice image after sorting and  windowing with sliders - they are calling inside in  windowing function
+#5. show windowing ITF visualization with slice slider, center slider, width slider and ROI selection
 show_windowing(volume3D)
