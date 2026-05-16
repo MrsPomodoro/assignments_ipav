@@ -15,11 +15,18 @@ from matplotlib.widgets import Slider, RectangleSelector
 from visualisation import show_slice_slider
 
 
-# TODO: after the slider for selecting the active image slice is working, try to implement a windowing ITF specified by the windowing parameters center and width:
-#  - implement 2 additional sliders for specifying the windowing ITF (parameters: center, width), apply the windowing ITF on the current slice before visualizing
-#  (really create a new image with the mapped intensities in this step) make sure the width is limited to the range from 10 to 85
-#  - make sure the visualization updates correctly when changing a windowing ITF parameter
-
+# TODO: after the slider for selecting the active image slice is working,
+# try to implement a windowing ITF specified by the windowing parameters center and width:
+#
+# - implement 2 additional sliders for specifying the windowing ITF
+#   (parameters: center, width)
+#
+# - apply the windowing ITF on the current slice before visualizing
+#
+# - make sure the width is limited to the range from 10 to 85
+#
+# - make sure the visualization updates correctly
+#   when changing a windowing ITF parameter
 
 
 ## 1. Prepare function for applying windowing ITF
@@ -35,34 +42,39 @@ from visualisation import show_slice_slider
 #     left = center - width // 2
 #     right = center + (width - width // 2)
 
-
 def windowing_itf(inputValueRange, center, width):
-
 
     numValues = len(inputValueRange)                  # get number of intensity values
     maxValue = numValues - 1                          # determine maximum intensity value
+
     itf = np.zeros(numValues)                         # create empty ITF array
 
-    left = center - width // 2                        # calculate left and right window boundary
-    right = center + (width - width // 2)
+    left = center - width // 2                        # calculate left window boundary
+    right = center + (width - width // 2)             # calculate right window boundary
 
-    leftClamped = max(0, left)                        # clamp boundaries into valid range
-    rightClamped = min(maxValue, right)
+    leftClamped = max(0, left)                        # clamp left boundary
+    rightClamped = min(maxValue, right)               # clamp right boundary
 
-    itf[0:left] = 0                                   # values smaller than left boundary become black
-    itf[right:] = maxValue                            # values larger than right boundary become white
+    itf[0:left] = 0                                   # values below window become black
+    itf[right:] = maxValue                            # values above window become white
 
-    wholeWidth = right - left + 1                     # calculate width of visible interval
-    intensityValueLeft = (leftClamped - left) / wholeWidth               # normalize left boundary
-    intensityValueRight = 1 - ((right - rightClamped) / wholeWidth)      # normalize right boundary
+    wholeWidth = right - left + 1                     # calculate visible width interval
 
-    values = np.linspace(                             #  linear mapping values
+    intensityValueLeft = (
+        leftClamped - left
+    ) / wholeWidth
+
+    intensityValueRight = (
+        1 - ((right - rightClamped) / wholeWidth)
+    )
+
+    values = np.linspace(
         intensityValueLeft,
         intensityValueRight,
         rightClamped - leftClamped + 1
     ) * maxValue
 
-    itf[leftClamped:rightClamped + 1] = np.round(values)   # store mapped values into ITF
+    itf[leftClamped:rightClamped + 1] = np.round(values)
 
     return itf
 
@@ -77,29 +89,40 @@ def windowing_itf(inputValueRange, center, width):
 
 def show_windowing(volume3D):
 
-    slice_index = 53    #  start visualization with the 54th slice
+    slice_index = 53    # start visualization with the 54th slice
 
-# check mn, max to be able to setup windowing parameters
+    # check min and max intensity values
+
     print(volume3D.min())
     print(volume3D.max())
 
     current_slice = volume3D[:, :, slice_index]
 
-    max_intensity = int(np.max(volume3D))         # get maximum intensity from DICOM volume
-    min_intensity = int(np.min(volume3D))         # get min intensity from DICOM volume
-
+    max_intensity = int(np.max(volume3D))             # get maximum intensity value
+    min_intensity = int(np.min(volume3D))             # get minimum intensity value
 
     center = (min_intensity + max_intensity) // 2
     width = max_intensity - min_intensity
 
-    itf = windowing_itf(                          # create ITF based exersice06
+    # create ITF
+
+    itf = windowing_itf(
         range(0, max_intensity + 1),
         center,
         width
     )
-    current_slice = np.clip(current_slice, 0, max_intensity)
-    mapped_image = itf[current_slice]              # map original slice intensities with ITF
-    figure, ax_image = plt.subplots()              # create matplotlib figure
+
+    current_slice = np.clip(
+        current_slice,
+        0,
+        max_intensity
+    )
+
+    mapped_image = itf[current_slice]                 # map original slice with ITF
+
+    # create matplotlib figure
+
+    figure, ax_image = plt.subplots()
 
     image_plot, slice_slider = show_slice_slider(
         volume3D,
@@ -108,13 +131,22 @@ def show_windowing(volume3D):
         ax_image
     )
 
-    image_plot.set_data(mapped_image.astype(np.uint8))
+    image_plot.set_data(
+        mapped_image.astype(np.uint8)
+    )
 
-    plt.subplots_adjust(bottom=0.3)                          # create free space for sliders
-    ax_center_slider = plt.axes((0.2, 0.20, 0.6, 0.03))       # create axes for sliders
+    # create free space for sliders
+
+    plt.subplots_adjust(bottom=0.3)
+
+    # create slider axes
+
+    ax_center_slider = plt.axes((0.2, 0.20, 0.6, 0.03))
     ax_width_slider = plt.axes((0.2, 0.12, 0.6, 0.03))
 
-    center_slider = Slider(                                  # create center slider
+    # create center slider
+
+    center_slider = Slider(
         ax=ax_center_slider,
         label="Center",
         valmin=0,
@@ -123,7 +155,8 @@ def show_windowing(volume3D):
         valstep=1
     )
 
-    # create width slider - assignment says width must be between 10 and 85
+    # create width slider
+    # assignment says width must be between 10 and 85
 
     width_slider = Slider(
         ax=ax_width_slider,
@@ -147,25 +180,29 @@ def show_windowing(volume3D):
 # - update visualization
 
     def update_windowing(selected_value):
-        current_center = int(center_slider.val)                     # get actual slider values
+
+        current_center = int(center_slider.val)
         current_width = int(width_slider.val)
         current_slice_index = int(slice_slider.val)
-        current_slice = volume3D[:, :, current_slice_index]               # get current slice
-        updated_itf = windowing_itf(                                # create updated ITF
+
+        current_slice = volume3D[:, :, current_slice_index]
+
+        updated_itf = windowing_itf(
             range(0, max_intensity + 1),
             current_center,
             current_width
         )
 
-        updated_image = updated_itf[current_slice]                  # map slice intensities with updated ITF
-        image_plot.set_data(updated_image.astype(np.uint8))         # update image visualization
+        updated_image = updated_itf[current_slice]
 
+        image_plot.set_data(
+            updated_image.astype(np.uint8)
+        )
 
         # TODO:
-        # - If you strive for full assignment points make sure the slice order in the volume is correct
-        # and changing the ROI or a slider behaves correctly and updates the visualization correctly:
-        # ensure that whenever a slider is changed the title of the figure is updated with information
-        # which slider was updated – it is important that it is stated which slider caused the update
+        # ensure that whenever a slider is changed
+        # the figure title is updated with information
+        # which slider caused the update
 
         ax_image.set_title(
             f"Center slider updated | "
@@ -174,34 +211,36 @@ def show_windowing(volume3D):
             f"Width: {current_width}"
         )
 
-        figure.canvas.draw_idle()                                   # redraw figure
+        figure.canvas.draw_idle()
 
-    center_slider.on_changed(update_windowing)                     # connect sliders with callback function
+    # connect sliders with callback function
+
+    center_slider.on_changed(update_windowing)
     width_slider.on_changed(update_windowing)
     slice_slider.on_changed(update_windowing)
 
 
     #### roi_selection #####
 
-    # TODO: also implement an interactive rectangular region of interest (ROI) selection
-    # (search docs for RectangleSelector)
-    # to allow the user to select a ROI, determine the min and max intensity value
-    # inside the ROI for the currently selected slice and derive the ITF parameters
-    # (center and width) from it.
-
+    # TODO:
+    # implement interactive rectangular ROI selection
+    #
+    # determine:
+    # - min ROI intensity
+    # - max ROI intensity
+    #
+    # derive:
+    # - center
+    # - width
+    #
+    # update sliders and visualization
 
     # based on older matplotlib RectangleSelector example documentation:
     # https://matplotlib.org/3.1.3/gallery/widgets/rectangle_selector.html
-    #
-    # based on the example:
-    # - use RectangleSelector callback function
-    # - use mouse click start and end coordinates
-    # - use RectangleSelector on image axis
 
     def select_roi(eclick, erelease):
 
-        # based on older matplotlib RectangleSelector example documentation:
-        # use mouse click start and end coordinates
+        # get mouse click coordinates
 
         x1 = int(eclick.xdata)
         y1 = int(eclick.ydata)
@@ -209,19 +248,15 @@ def show_windowing(volume3D):
         x2 = int(erelease.xdata)
         y2 = int(erelease.ydata)
 
+        # get current slice
 
-        # get current slice from 3D volume
         current_slice = volume3D[:, :, int(slice_slider.val)]
 
-
-        # based on exercise02 linear indexing:
-        # use numpy image indexing to extract ROI from current slice
+        # extract ROI
 
         roi = current_slice[y1:y2, x1:x2]
 
-
-        # based on exercise07 histogram equalization:
-        # use min() and max() intensity calculation on image region
+        # calculate ROI intensity range
 
         roi_min = roi.min()
         roi_max = roi.max()
@@ -229,34 +264,19 @@ def show_windowing(volume3D):
         print("ROI min intensity:", roi_min)
         print("ROI max intensity:", roi_max)
 
+        # derive ITF parameters
 
-        # derive ITF parameters from ROI
         roi_center = (roi_min + roi_max) // 2
         roi_width = roi_max - roi_min
 
-
-        # TODO 2 detailed:
-        # changing the slider for the selected slice should update the visualized slice
-        # taking into account the currently selected windowing ITF
-        #
-        # - changing one of the sliders for the windowing ITF parameters
-        # should update the visualization
-        # (by mapping the original slice with the current specified ITF)
-        #
-        # - selecting a ROI should update the slider values
-        # and also update the visualization accordingly
-        #
-        # based on matplotlib Slider.set_val():
-        # changing slider values automatically triggers update_windowing()
+        # TODO:
+        # changing slider values automatically
+        # triggers update_windowing()
 
         center_slider.set_val(roi_center)
         width_slider.set_val(roi_width)
 
-
-    # based on older matplotlib RectangleSelector example documentation:
-    # https://matplotlib.org/3.1.3/gallery/widgets/rectangle_selector.html
-    #
-    # activate interactive ROI selection on image axis
+    # activate RectangleSelector
 
     rectangle_selector = RectangleSelector(
         ax_image,
