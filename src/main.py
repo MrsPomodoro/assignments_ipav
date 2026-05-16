@@ -17,7 +17,7 @@ from load_dicom_volume import (
 from windowing import show_windowing
 
 # 1. load datasets
-filepath = 'data/Lobus_DICOMs_mixed_up/*.dcm'
+filepath = '../data/Lobus_DICOMs_mixed_up/*.dcm'
 
 datasets = load_dicom_files(filepath)
 
